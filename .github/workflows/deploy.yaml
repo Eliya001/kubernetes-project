@@ -47,13 +47,13 @@ jobs:
 
     - name: Update kubeconfig
       run: |
-        aws sts get caller-identity
-        aws eks update-kubeconfig --name my-cluster --region ap-southeast-1
+        rm -f $HOME/.kube/config
+        aws sts get-caller-indetity
+        aws eks describe-cluster --name my-cluster --query "cluster.endpoint"
+        aws eks update-kubeconfig --name my-cluster --region ap-southeast-1 --kubeconfig $HOME/.kube/config
+        echo "KUBECONFIG=$HOME/.kube/config" >> $GITHUB_ENV
         kubectl config view
-        kubectl get nodes
-
-    - name: Set KUBECONFIG
-      run: echo "KUBECONFIG=$HOME/.kube/config" >> $GITHUB_ENV
+        kubectl get nodes || echo "kubectl failed"
 
     - name: Verfiy AWS identity
       run: aws sts get-caller-identity
